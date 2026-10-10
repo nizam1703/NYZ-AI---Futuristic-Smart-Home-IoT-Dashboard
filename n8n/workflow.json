@@ -1,0 +1,205 @@
+{
+  "name": "NYZ AI - ESP8266 6 LED & Memory",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "nyz-chat",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "id": "2c716358-f50d-46c9-bc8b-64aa6e6e8c5c",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "649dd9a7-6632-4289-9217-1d45567c6140"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.body.chatInput || $json.body.message }}",
+        "options": {
+          "systemMessage": "Anda adalah NYZ AI, asisten Smart Home futuristik yang cerdas dan canggih. \nTUGAS UTAMA: Jawablah dengan ringkas, natural, dan bergaya cyberpunk/sci-fi. Anda bisa menggunakan sapaan seperti \"Komandan\". Jangan bertele-tele.\n\nSIMULASI PERANGKAT:\n1 = Lampu Teras\n2 = Lampu Ruang Tamu\n3 = Kipas Angin\n4 = Smart TV\n5 = AC Kamar\n6 = Mesin Pompa Air\n\nATURAN MUTLAK KONTROL_ESP8266:\n- Untuk membaca sensor: endpoint='data'\n- Untuk kontrol perangkat: endpoint='led'\n- PENTING UNTUK STATE: Jika user minta mematikan, parameter 'state' WAJIB diisi \"off\" (huruf kecil). Jika menyalakan, WAJIB diisi \"on\". JANGAN PERNAH gunakan kata mati, padam, atau OFF!\n- PENTING UNTUK LED_ID: Parameter 'led_id' WAJIB berupa ANGKA (1, 2, 3, 4, 5, 6) atau \"all\". JANGAN PERNAH mengisi nama alat ke dalam led_id.\n\nContoh respons: \nUser: \"Tolong nyalakan TV.\" -> AI: \"Perintah diterima. Smart TV telah diaktifkan untuk Anda, Komandan.\""
+        }
+      },
+      "id": "bad67f7e-f1ff-48d7-8965-cddf4d3b6198",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2,
+      "position": [
+        288,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-3.5-flash-lite",
+        "options": {}
+      },
+      "id": "569a78e4-d26e-4712-87d1-d65acfe04dfc",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        128,
+        224
+      ],
+      "credentials": {
+        "googlePalmApi": {
+          "id": "LvejvoxZhs0Rd0QC",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "contextWindowLength": 15
+      },
+      "id": "7cb88a4b-5ef0-4bfc-9a73-c139140c0ed4",
+      "name": "Window Buffer Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1,
+      "position": [
+        320,
+        272
+      ]
+    },
+    {
+      "parameters": {
+        "url": "http://192.168.63.180/api",
+        "sendQuery": true,
+        "parametersQuery": {
+          "values": [
+            {
+              "name": "endpoint"
+            },
+            {
+              "name": "state"
+            },
+            {
+              "name": "led_id"
+            }
+          ]
+        },
+        "placeholderDefinitions": {
+          "values": [
+            {
+              "name": "state",
+              "description": "Wajib diisi \"on\" atau \"off\" (huruf kecil). Dilarang pakai kata mati atau padam.",
+              "type": "string"
+            },
+            {
+              "name": "led_id",
+              "description": "Wajib diisi angka 1, 2, 3, 4, 5, 6, atau teks \"all\".",
+              "type": "string"
+            },
+            {
+              "name": "endpoint",
+              "description": "Wajib diisi teks \"data\", \"led\", atau \"status\".",
+              "type": "string"
+            }
+          ]
+        }
+      },
+      "id": "a7712691-9669-4f01-8e6f-ad86575b10e6",
+      "name": "HTTP Request Tool",
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "typeVersion": 1,
+      "position": [
+        480,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { reply: $json.output, sessionId: $(\"Webhook\").first().json.body.sessionId } }}",
+        "options": {}
+      },
+      "id": "011fad21-0dc5-42ec-bacd-09767fcb1707",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.4,
+      "position": [
+        640,
+        0
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "df25e8e5-7450-4940-be3f-84c860b4ac15",
+  "meta": {
+    "instanceId": "65820d0afda6d847bc9b055644a2f39f708b1d0c97dcdfdf9625514aef2a99cd"
+  },
+  "nodeGroups": [],
+  "id": "FbCyl3cU5KVFYHp8",
+  "tags": []
+}

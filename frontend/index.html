@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NYZ AI - FUTURISTIC CORE</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700&family=Share+Tech+Mono&display=swap');
+
+        :root {
+            --cyan: #00f3ff;
+            --neon-blue: #0077ff;
+            --purple: #b000ff;
+            --dark-bg: #030613;
+            --hud-border: rgba(0, 243, 255, 0.4);
+            --hud-bg: rgba(3, 6, 19, 0.7);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--dark-bg);
+            color: var(--cyan);
+            font-family: 'Share Tech Mono', monospace;
+            overflow: hidden;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-image: 
+                radial-gradient(circle at center, #050a1f 0%, var(--dark-bg) 100%),
+                linear-gradient(rgba(0, 243, 255, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 243, 255, 0.05) 1px, transparent 1px);
+            background-size: 100% 100%, 40px 40px, 40px 40px;
+        }
+
+        #boot-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.95); z-index: 9999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            cursor: pointer; transition: opacity 0.5s ease;
+        }
+        #boot-screen h1 { font-family: 'Orbitron', sans-serif; font-size: 2.5em; letter-spacing: 8px; color: var(--cyan); animation: pulse-text 2s infinite; text-align: center; }
+        #boot-screen p { margin-top: 15px; opacity: 0.8; text-align: center; color: var(--neon-blue); }
+        @keyframes pulse-text { 0%, 100% { opacity: 1; text-shadow: 0 0 20px var(--cyan); } 50% { opacity: 0.4; } }
+
+        .scanlines {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: linear-gradient(to bottom, rgba(255,255,255,0), rgba(255,255,255,0) 50%, rgba(0,0,0,0.2) 50%, rgba(0,0,0,0.2));
+            background-size: 100% 4px; pointer-events: none; z-index: 100;
+        }
+
+        .hud-container { width: 95%; height: 95%; position: relative; }
+        .panel {
+            background: var(--hud-bg); border: 1px solid var(--hud-border);
+            padding: 20px; position: absolute; backdrop-filter: blur(10px);
+            box-shadow: 0 0 25px rgba(0, 243, 255, 0.1) inset;
+            border-radius: 8px;
+        }
+        .panel-left { top: 20px; left: 20px; width: 300px; border-left: 4px solid var(--cyan); }
+        .panel-right { top: 20px; right: 20px; width: 300px; text-align: right; border-right: 4px solid var(--purple); }
+
+        @media (max-width: 768px) {
+            .panel-left, .panel-right { width: 45%; padding: 10px; font-size: 0.75em; }
+            .panel-left { top: 10px; left: 10px; }
+            .panel-right { top: 10px; right: 10px; }
+            .jarvis-core-container { transform: translate(-50%, -60%) scale(0.7); }
+        }
+
+        .panel-title { font-family: 'Orbitron', sans-serif; font-size: 1.1em; letter-spacing: 2px; margin-bottom: 15px; border-bottom: 1px solid var(--hud-border); padding-bottom: 5px; color: var(--cyan); }
+        .data-row { display: flex; justify-content: space-between; margin-bottom: 8px; font-size: 0.9em; opacity: 0.9; }
+
+        .jarvis-core-container {
+            position: absolute; top: 40%; left: 50%;
+            transform: translate(-50%, -50%);
+            width: 400px; height: 400px;
+            display: flex; justify-content: center; align-items: center;
+            perspective: 800px; 
+        }
+
+        .solar-flare-cloud {
+            position: absolute; width: 100%; height: 100%;
+            transform-style: preserve-3d;
+            animation: spin-cloud 20s linear infinite;
+            z-index: 15;
+        }
+
+        .solar-particle {
+            position: absolute; top: 50%; left: 50%;
+            width: 4px; height: 4px; border-radius: 50%;
+            background: #fff;
+            box-shadow: 0 0 10px var(--cyan), 0 0 20px var(--neon-blue);
+            transition: transform 0.1s ease-out, background 0.3s;
+        }
+
+        .core-orb {
+            width: 130px; height: 130px; border-radius: 50%;
+            background: radial-gradient(circle, #fff 0%, var(--cyan) 40%, var(--neon-blue) 70%, transparent 100%);
+            box-shadow: 0 0 60px var(--cyan), 0 0 100px var(--neon-blue), inset 0 0 30px #fff;
+            display: flex; justify-content: center; align-items: center;
+            z-index: 20; transition: transform 0.1s ease;
+            animation: solar-pulse 3s infinite alternate ease-in-out;
+        }
+
+        .core-text { 
+            font-family: 'Orbitron', sans-serif; font-size: 28px; font-weight: bold; letter-spacing: 4px; 
+            color: #ffffff; text-shadow: 0 0 10px var(--neon-blue), 0 0 20px var(--cyan);
+            z-index: 25;
+        }
+
+        @keyframes solar-pulse {
+            0% { box-shadow: 0 0 40px var(--cyan), 0 0 80px var(--neon-blue), inset 0 0 20px #fff; }
+            100% { box-shadow: 0 0 80px var(--cyan), 0 0 140px var(--neon-blue), inset 0 0 40px #fff; }
+        }
+
+        .ring-solar {
+            position: absolute; width: 320px; height: 320px;
+            border-radius: 50%; border: 2px dashed rgba(0, 243, 255, 0.4);
+            transform: rotateX(75deg); animation: spin-3d 12s linear infinite;
+        }
+        .ring-outer {
+            position: absolute; width: 380px; height: 380px;
+            border-radius: 50%; border: 1px solid rgba(176, 0, 255, 0.3);
+            border-top-color: var(--cyan); border-bottom-color: var(--purple);
+            animation: spin-slow 18s linear infinite;
+        }
+
+        @keyframes spin-cloud { 0% { transform: rotateY(0deg) rotateX(20deg); } 100% { transform: rotateY(360deg) rotateX(20deg); } }
+        @keyframes spin-3d { 100% { transform: rotateX(75deg) rotateZ(360deg); } }
+        @keyframes spin-slow { 100% { transform: rotate(360deg); } }
+
+        .state-listening .core-orb { box-shadow: 0 0 100px #00ff66, inset 0 0 40px #fff; background: radial-gradient(circle, #fff 0%, #00ff66 60%, transparent 100%); }
+        .state-thinking .core-orb { box-shadow: 0 0 100px var(--purple); animation: pulse-fast 0.4s infinite alternate; background: radial-gradient(circle, #fff 0%, var(--purple) 60%, transparent 100%); }
+        @keyframes pulse-fast { 0% { transform: scale(0.92); } 100% { transform: scale(1.15); } }
+
+        .talk-btn {
+            position: absolute; bottom: 195px; left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0, 243, 255, 0.1); border: 2px solid var(--cyan);
+            color: var(--cyan); padding: 12px 35px; font-family: 'Orbitron', sans-serif;
+            font-size: 1.1em; letter-spacing: 3px; font-weight: bold; cursor: pointer;
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.3) inset, 0 0 20px rgba(0, 243, 255, 0.3);
+            transition: all 0.2s; z-index: 50; border-radius: 4px;
+            text-transform: uppercase;
+        }
+        .talk-btn:hover { background: var(--cyan); color: #000; box-shadow: 0 0 40px var(--cyan); }
+        .talk-btn:active, .talk-btn.recording { background: #00ff66; border-color: #00ff66; color: #000; box-shadow: 0 0 40px #00ff66; transform: translateX(-50%) scale(0.95); text-shadow: none;}
+        .talk-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+        .text-output-container {
+            position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%);
+            width: 85%; max-width: 900px; height: 150px;
+            background: rgba(3, 6, 19, 0.85); border: 1px solid var(--hud-border); border-top: 3px solid var(--cyan);
+            padding: 12px 20px; box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8); display: flex; flex-direction: column; z-index: 20; border-radius: 8px;
+        }
+        @media (max-width: 768px) {
+            .text-output-container { height: 130px; bottom: 10px; width: 95%; padding: 10px 15px; }
+            .response-text { font-size: 0.9em !important; }
+            .talk-btn { bottom: 155px; padding: 10px 25px; font-size: 1em; }
+        }
+
+        .status-header { font-size: 0.85em; color: #888; margin-bottom: 5px; display: flex; justify-content: space-between; }
+        .status-header span:last-child { color: var(--cyan); animation: blink 1s infinite; }
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+        .response-text { flex-grow: 1; overflow-y: auto; font-size: 1.05em; line-height: 1.4; text-shadow: 0 0 2px rgba(0, 243, 255, 0.4); padding-right: 10px; color: #e0ffff; }
+        .response-text::-webkit-scrollbar { width: 4px; }
+        .response-text::-webkit-scrollbar-track { background: rgba(0, 243, 255, 0.05); }
+        .response-text::-webkit-scrollbar-thumb { background: rgba(0, 243, 255, 0.5); border-radius: 5px; }
+
+        .interrupt-btn {
+            position: absolute; bottom: 195px; right: 20px;
+            background: rgba(255, 0, 60, 0.15); border: 2px solid #ff003c;
+            color: #ff003c; padding: 12px 15px; font-family: 'Share Tech Mono', monospace;
+            font-size: 0.8em; letter-spacing: 1px; font-weight: bold; cursor: pointer;
+            box-shadow: 0 0 15px rgba(255, 0, 60, 0.4) inset;
+            transition: all 0.2s; z-index: 50; display: none; border-radius: 4px;
+        }
+        @media (max-width: 768px) { .interrupt-btn { bottom: 155px; right: 10px; padding: 10px 12px; } }
+        .interrupt-btn:hover { background: #ff003c; color: #fff; box-shadow: 0 0 30px #ff003c; }
+
+        #tts-debug { position: absolute; bottom: 2px; right: 8px; font-size: 0.65em; color: #555; z-index: 99; }
+
+        .settings {position:relative;z-index:110;padding:10px;background:rgba(3,6,19,0.9);border:1px solid var(--cyan);margin-top:12px;text-align:left;font-size:12px; border-radius: 4px;}
+        .settings input {width:100%;margin:6px 0;padding:8px;background:#010205;color:#fff;border:1px solid var(--cyan); outline: none; border-radius: 4px;}
+        button {cursor:pointer} .settings button,#send-btn,#replay {padding:8px;background:rgba(0, 243, 255, 0.2);color:var(--cyan);border:1px solid var(--cyan); border-radius: 4px;}
+        #chat-form {display:flex;gap:8px;margin-top:8px} #message {flex:1;min-width:0;background:#010205;color:#fff;border:1px solid var(--cyan);padding:8px; outline: none; border-radius: 4px;}
+        .text-output-container {height:210px} .talk-btn,.interrupt-btn {bottom:240px} .response-text {white-space:pre-wrap;min-height:30px}
+        @media(max-width:768px){.jarvis-core-container{top:47%;transform:translate(-50%,-50%) scale(.6)}.panel{font-size:10px}.text-output-container{height:210px}.talk-btn,.interrupt-btn{bottom:235px}.interrupt-btn{right:0;font-size:10px}.talk-btn{font-size:12px;padding:10px}}
+    </style>
+</head>
+<body>
+    <div class="scanlines"></div>
+
+    <div id="boot-screen">
+        <h1>[NYZ AI OFFLINE]</h1>
+        <p>INITIATE SECURE CONNECTION</p>
+    </div>
+
+    <div class="hud-container">
+        <!-- Panels -->
+        <div class="panel panel-left">
+            <div class="panel-title">SYS.DIAGNOSTICS</div>
+            <div class="data-row"><span>MODE:</span> <span style="color:var(--cyan)">NEURAL-LINK</span></div>
+            <div class="data-row"><span>MIC_STATUS:</span> <span id="mic-status" style="color:var(--neon-blue)">READY</span></div>
+            <div class="data-row"><span>SESSION:</span> <span id="cpu" style="color:#00ff66">—</span></div>
+        </div>
+        <div class="panel panel-right">
+            <div class="panel-title">AI.LINK.STATUS</div>
+            <details class="settings"><summary>Network Settings</summary><label for="webhook-url">Endpoint n8n Webhook</label><input id="webhook-url" type="url" placeholder="http://192.168.../webhook/jarvis-chat"><button id="save-url">Simpan API</button></details>
+            <div class="data-row"><span>REACTOR:</span> <span id="link-status">BELUM DIUJI</span></div>
+            <div class="data-row"><span>IDENTITY:</span> <span style="color:var(--purple)">NYZ-AI</span></div>
+        </div>
+
+        <!-- 3D SOLAR CORE VISUALIZER -->
+        <div class="jarvis-core-container" id="core-visualizer">
+            <div class="ring-outer"></div>
+            <div class="ring-solar"></div>
+            <div class="solar-flare-cloud" id="solar-cloud"></div>
+            <div class="core-orb" id="core-orb">
+                <span class="core-text">.NYZ.</span>
+            </div>
+        </div>
+
+        <button class="talk-btn" id="talk-btn">MICROPHONE</button>
+        <button class="interrupt-btn" id="interrupt-btn">ABORT</button>
+
+        <div class="text-output-container">
+            <div class="status-header">
+                <span id="ai-status">SYSTEM STANDBY</span>
+                <span>_</span>
+            </div>
+            <div class="response-text" id="ai-response">
+                Akses terverifikasi. Tekan MICROPHONE atau ketik perintah.
+            </div>
+            <form id="chat-form"><input id="message" aria-label="Pesan" placeholder="Ketik perintah..." maxlength="4000" required><button id="send-btn">Kirim</button><button id="replay" type="button">Ulangi</button></form>
+        </div>
+
+        <div id="tts-debug">[ TTS: STANDBY ]</div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
